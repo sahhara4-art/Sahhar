@@ -1,4 +1,4 @@
-name: Android CI
+name: Build APK from ZIP
 
 on:
   push:
@@ -10,23 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: set up JDK 17
+    - name: Unzip the uploaded ZIP file
+      run: |
+        unzip -q *.zip -d my_project/
+
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Build APK
+      run: |
+        cd my_project/
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
-    - name: Build APK directly (Fast Mode)
-      run: ./gradlew assembleDebug
-
-    - name: Upload APK
+    - name: Upload final APK
       uses: actions/upload-artifact@v4
       with:
         name: HumanitarianAid-App
-        path: app/build/outputs/apk/debug/*.apk
+        path: my_project/app/build/outputs/apk/debug/*.apk
