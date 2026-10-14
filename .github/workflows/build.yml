@@ -30,6 +30,7 @@ jobs:
     - name: Build APK
       run: |
         cd my_project/
+        rm -f app/src/main/res/values/styles.xml
         chmod +x gradlew
         ./gradlew assembleDebug
 
