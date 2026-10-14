@@ -1,0 +1,40 @@
+name: Build APK Final
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Clean previous projects
+      run: rm -rf my_project
+
+    - name: Unzip the LATEST uploaded ZIP file
+      run: |
+        latest_zip=$(ls -t *.zip | head -1)
+        unzip -q "$latest_zip" -d my_project/
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build APK
+      run: |
+        cd my_project/
+        chmod +x gradlew
+        ./gradlew assembleDebug
+
+    - name: Upload final APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: HumanitarianAid-Ready
+        path: my_project/app/build/outputs/apk/debug/*.apk
